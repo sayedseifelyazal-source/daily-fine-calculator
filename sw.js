@@ -1,5 +1,5 @@
 
-const CACHE_NAME = 'daily-fine-calculator-v3';
+const CACHE_NAME = 'daily-fine-calculator-v4';
 
 const FILES_TO_CACHE = [
   './',
@@ -13,9 +13,10 @@ const FILES_TO_CACHE = [
 
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(FILES_TO_CACHE))
+    caches.open(CACHE_NAME)
+      .then(cache => cache.addAll(FILES_TO_CACHE))
+      .then(() => self.skipWaiting())
   );
-  self.skipWaiting();
 });
 
 self.addEventListener('activate', event => {
@@ -23,30 +24,52 @@ self.addEventListener('activate', event => {
     caches.keys().then(keys =>
       Promise.all(
         keys
-          .filter(key => key !== CACHE_NAME)
+          .filter(key =>
+            key.startsWith('daily-fine-calculator-') &&
+            key !== CACHE_NAME
+          )
           .map(key => caches.delete(key))
       )
-    )
+    ).then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
 self.addEventListener('fetch', event => {
-  if (event.request.method !== 'GET') return;
+  const request = event.request;
+
+  if (request.method !== 'GET') return;
+
+  const url = new URL(request.url);
+
+  if (url.origin !== self.location.origin) return;
 
   event.respondWith(
-    fetch(event.request)
+    fetch(request)
       .then(response => {
         if (response && response.ok) {
           const copy = response.clone();
+
           caches.open(CACHE_NAME).then(cache => {
-            cache.put(event.request, copy);
+            cache.put(request, copy);
           });
         }
+
         return response;
       })
-      .catch(() => caches.match(event.request).then(cached => {
-        return cached || caches.match('./index.html');
-      }))
+      .catch(async () => {
+        const cached = await caches.match(request);
+
+        if (cached) return cached;
+
+        if (request.mode === 'navigate') {
+          const fallback = await caches.match('./index.html');
+          if (fallback) return fallback;
+        }
+
+        return new Response('لا يوجد اتصال بالإنترنت', {
+          status: 503,
+          headers: {'Content-Type': 'text/plain; charset=utf-8'}
+        });
+      })
   );
 });
