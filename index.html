@@ -14,6 +14,7 @@
 <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
 <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
 <title>حاسبة الغرامة اليومية</title>
+
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#f2f6f7;color:#17343e;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Tahoma,Arial,sans-serif;line-height:1.5}
@@ -25,6 +26,7 @@ body{margin:0;background:#f2f6f7;color:#17343e;font-family:-apple-system,BlinkMa
 .field{margin-bottom:14px}
 label{display:block;font-weight:700;margin-bottom:6px;font-size:14px}
 input,select{width:100%;font:inherit;font-size:16px;min-height:48px;padding:10px;border:1px solid #c6d6da;border-radius:10px;background:white;color:#17343e}
+input:focus,select:focus{outline:2px solid #08766d;border-color:#08766d}
 input[readonly]{background:#edf4f4;font-weight:700}
 .fixedrate{padding:12px;background:#e8f4f1;border-radius:10px;margin-bottom:14px;display:flex;justify-content:space-between}
 .fixedrate strong{color:#08766d}
@@ -39,32 +41,37 @@ input[readonly]{background:#edf4f4;font-weight:700}
 .install-wrap{margin:0 0 14px}
 .install-btn{width:100%;display:none;background:#08766d;color:#fff;font:inherit;font-weight:700;border:0;border-radius:10px;padding:13px;min-height:48px}
 .install-note{font-size:12px;color:#66777d;margin:7px 4px 0}
+.reset-btn{width:100%;margin-top:14px;background:#e8eff0;color:#17343e;font:inherit;font-weight:700;border:0;border-radius:10px;padding:13px;min-height:48px}
 </style>
 </head>
+
 <body>
 <main class="wrap">
 
 <header class="head">
 <h1>حاسبة الغرامة اليومية</h1>
-<p>أدخل قيمة الأعمال والتواريخ، وسيتم احتساب الغرامة والإجمالي تلقائيًا.</p>
+<p>أدخل قيمة الأعمال أو الغرامة اليومية، وسيتم حساب القيمة الأخرى تلقائيًا.</p>
 </header>
 
 <div class="install-wrap">
 <button id="installApp" class="install-btn" type="button">تثبيت الحاسبة على الهاتف</button>
-<div id="installNote" class="install-note" hidden>على iPhone: افتح الصفحة في Safari ثم اضغط مشاركة ← إضافة إلى الشاشة الرئيسية.</div>
+<div id="installNote" class="install-note" hidden>
+على iPhone: افتح الصفحة في Safari ثم اضغط مشاركة ← إضافة إلى الشاشة الرئيسية.
+</div>
 </div>
 
 <section class="card">
 
 <div class="field">
 <label for="work">قيمة الأعمال (جنيه)</label>
-<input id="work" type="number" min="0" step="0.01" inputmode="decimal" placeholder="أدخل قيمة الأعمال">
+<input id="work" type="number" min="0" step="any" inputmode="decimal" placeholder="أدخل قيمة الأعمال">
+<div class="hint">عند إدخال قيمة الأعمال تُحسب الغرامة اليومية تلقائيًا.</div>
 </div>
 
 <div class="field">
 <label for="daily">الغرامة اليومية (1%) — جنيه</label>
-<input id="daily" type="text" readonly placeholder="تُحسب تلقائيًا من قيمة الأعمال">
-<div class="hint">تُحسب الغرامة اليومية تلقائيًا بنسبة 1% من قيمة الأعمال.</div>
+<input id="daily" type="number" min="0" step="any" inputmode="decimal" placeholder="أدخل الغرامة اليومية">
+<div class="hint">يمكنك إدخال الغرامة اليومية مباشرة، وستُحسب قيمة الأعمال تلقائيًا.</div>
 </div>
 
 <div class="fixedrate">
@@ -85,15 +92,11 @@ input[readonly]{background:#edf4f4;font-weight:700}
 <div class="field">
 <label for="fixedMode">الغرامة الثابتة</label>
 <select id="fixedMode">
-<option value="manual">إدخال يدوي</option>
+<option value="">اختر طريقة احتساب الغرامة الثابتة</option>
 <option value="double">مثلي قيمة الأعمال</option>
 <option value="triple">ثلاثة أمثال قيمة الأعمال</option>
 </select>
-</div>
-
-<div class="field" id="manualFixedField">
-<label for="fixedManual">قيمة الغرامة الثابتة يدويًا (جنيه)</label>
-<input id="fixedManual" type="number" min="0" step="0.01" inputmode="decimal" placeholder="أدخل القيمة إذا وجدت">
+<div class="hint">اختر طريقة احتساب الغرامة الثابتة وفقًا للحكم.</div>
 </div>
 
 <div class="field">
@@ -113,14 +116,38 @@ input[readonly]{background:#edf4f4;font-weight:700}
 </section>
 
 <section class="card" aria-live="polite">
+
 <h2 style="font-size:18px;margin:0 0 8px">نتيجة الحساب</h2>
 
-<div class="row"><span>عدد الأيام المحتسبة</span><strong id="days">—</strong></div>
-<div class="row"><span>قيمة الأعمال</span><strong id="workout">—</strong></div>
-<div class="row"><span>الغرامة اليومية (1%)</span><strong id="dailyout">—</strong></div>
-<div class="row"><span>إجمالي الغرامة اليومية</span><strong id="accumulated">—</strong></div>
-<div class="row"><span>الغرامة الثابتة</span><strong id="fixedout">—</strong></div>
-<div class="row"><span>المصاريف</span><strong id="expensesout">—</strong></div>
+<div class="row">
+<span>عدد الأيام المحتسبة</span>
+<strong id="days">—</strong>
+</div>
+
+<div class="row">
+<span>قيمة الأعمال</span>
+<strong id="workout">—</strong>
+</div>
+
+<div class="row">
+<span>الغرامة اليومية (1%)</span>
+<strong id="dailyout">—</strong>
+</div>
+
+<div class="row">
+<span>إجمالي الغرامة اليومية</span>
+<strong id="accumulated">—</strong>
+</div>
+
+<div class="row">
+<span>الغرامة الثابتة</span>
+<strong id="fixedout">—</strong>
+</div>
+
+<div class="row">
+<span>المصاريف</span>
+<strong id="expensesout">—</strong>
+</div>
 
 <div class="total">
 <small>الإجمالي المستحق وفق البيانات المدخلة</small>
@@ -129,10 +156,13 @@ input[readonly]{background:#edf4f4;font-weight:700}
 
 <div id="error" class="error" role="alert"></div>
 
-<button id="reset" type="button" style="width:100%;margin-top:14px;background:#e8eff0;color:#17343e;font:inherit;font-weight:700;border:0;border-radius:10px;padding:13px;min-height:48px">مسح البيانات</button>
+<button id="reset" class="reset-btn" type="button">مسح البيانات</button>
+
 </section>
 
-<div class="foot">هذه حاسبة حسابية وليست تحديدًا قانونيًا نهائيًا. راجع تاريخ بدء الاستحقاق وطريقة عد الأيام والمصاريف وفقًا لمنطوق الحكم.</div>
+<div class="foot">
+هذه حاسبة حسابية وليست تحديدًا قانونيًا نهائيًا. راجع تاريخ بدء الاستحقاق وطريقة عد الأيام والمصاريف وفقًا لمنطوق الحكم.
+</div>
 
 </main>
 
@@ -155,26 +185,93 @@ var p=v.split('-');
 return Math.floor(Date.UTC(+p[0],+p[1]-1,+p[2])/86400000);
 }
 
-function calculate(){
+function cleanNumber(n){
+return String(Number(n.toFixed(8)));
+}
+
+// مزامنة قيمة الأعمال والغرامة اليومية في الاتجاهين
+function syncValues(source){
 
 var workText=byId('work').value;
+var dailyText=byId('daily').value;
+
+if(source==='work'){
+
+if(workText===''){
+byId('daily').value='';
+return;
+}
+
+var work=Number(workText);
+
+if(!isFinite(work)||work<0){
+byId('daily').value='';
+return;
+}
+
+byId('daily').value=cleanNumber(work*0.01);
+
+}
+
+else if(source==='daily'){
+
+if(dailyText===''){
+byId('work').value='';
+return;
+}
+
+var daily=Number(dailyText);
+
+if(!isFinite(daily)||daily<0){
+byId('work').value='';
+return;
+}
+
+byId('work').value=cleanNumber(daily/0.01);
+
+}
+
+}
+
+function calculate(source){
+
+if(source==='work'||source==='daily'){
+syncValues(source);
+}
+
+var workText=byId('work').value;
+var dailyText=byId('daily').value;
+
+var work=Number(workText);
+var daily=Number(dailyText);
+
 var s=byId('decision').value;
 var e=byId('settlement').value;
 
-var work=Number(workText);
-var daily=work*0.01;
 var expensesText=byId('expenses').value;
 var expenses=expensesText===''?0:Number(expensesText);
-var fixedManualText=byId('fixedManual').value;
-var fixedManual=fixedManualText===''?0:Number(fixedManualText);
 
 var mode=byId('fixedMode').value;
-var fixed=0;
-var err='';
-var days=0;
 
-if(workText===''||!isFinite(work)||work<=0){
-err='من فضلك أدخل قيمة الأعمال بصورة صحيحة.';
+var fixed=0;
+var days=0;
+var accum=0;
+var total=0;
+var err='';
+
+var validWork=
+workText!==''&&
+dailyText!==''&&
+isFinite(work)&&
+isFinite(daily)&&
+work>0&&
+daily>=0;
+
+if(workText===''||dailyText===''){
+err='من فضلك أدخل قيمة الأعمال أو الغرامة اليومية.';
+}
+else if(!isFinite(work)||!isFinite(daily)||work<=0||daily<0){
+err='من فضلك أدخل قيمة صحيحة للأعمال أو الغرامة اليومية.';
 }
 else if(!s||!e){
 err='من فضلك أدخل تاريخ القرار وتاريخ الاحتساب أو السداد.';
@@ -182,69 +279,102 @@ err='من فضلك أدخل تاريخ القرار وتاريخ الاحتسا�
 else if(e<s){
 err='تاريخ الاحتساب لا يمكن أن يسبق تاريخ القرار.';
 }
-else if(!isFinite(expenses)||expenses<0){
+else if(!mode){
+err='من فضلك اختر طريقة احتساب الغرامة الثابتة.';
+}
+else if(expensesText!==''&&(!isFinite(expenses)||expenses<0)){
 err='من فضلك راجع قيمة المصاريف.';
 }
-else if(!isFinite(fixedManual)||fixedManual<0){
-err='من فضلك راجع قيمة الغرامة الثابتة.';
-}
-else{
+
+// حساب الأيام
+var validDates=s&&e&&e>=s;
+
+if(validDates){
 days=dayNo(e)-dayNo(s)+(byId('counting').value==='include'?1:0);
-if(days<0) days=0;
+if(days<0)days=0;
 }
 
+// حساب الغرامة الثابتة
 if(mode==='double'){
 fixed=work*2;
 }
 else if(mode==='triple'){
 fixed=work*3;
 }
-else{
-fixed=fixedManual;
+
+// حساب الغرامة اليومية
+if(validWork&&validDates){
+accum=days*daily;
 }
 
-var accum=days*daily;
-var total=accum+fixed+expenses;
+// الإجمالي
+total=accum+fixed+expenses;
 
-byId('daily').value=workText!==''&&isFinite(work)&&work>0?money(daily):'';
-byId('days').textContent=err?'—':days+' يوم';
-byId('workout').textContent=workText!==''&&isFinite(work)&&work>=0?money(work):'—';
-byId('dailyout').textContent=workText!==''&&isFinite(work)&&work>0?money(daily):'—';
-byId('accumulated').textContent=err?'—':money(accum);
-byId('fixedout').textContent=money(fixed);
-byId('expensesout').textContent=money(expenses);
-byId('total').textContent=err?'—':money(total);
+// عرض النتائج
+byId('workout').textContent=
+validWork?money(work):'—';
+
+byId('dailyout').textContent=
+validWork?money(daily):'—';
+
+byId('days').textContent=
+validDates?days+' يوم':'—';
+
+byId('accumulated').textContent=
+validWork&&validDates?money(accum):'—';
+
+byId('fixedout').textContent=
+mode&&validWork?money(fixed):'—';
+
+byId('expensesout').textContent=
+isFinite(expenses)&&expenses>=0?money(expenses):'—';
+
+byId('total').textContent=
+err?'—':money(total);
+
 byId('error').textContent=err;
 
 return {error:err};
 }
 
-function updateFixedMode(){
-var manual=byId('fixedMode').value==='manual';
-byId('manualFixedField').style.display=manual?'block':'none';
-calculate();
-}
-
-['work','decision','settlement','fixedManual','expenses','counting'].forEach(function(id){
-byId(id).addEventListener('input',calculate);
-byId(id).addEventListener('change',calculate);
+// الأحداث الخاصة بقيمة الأعمال والغرامة اليومية
+byId('work').addEventListener('input',function(){
+calculate('work');
 });
 
-byId('fixedMode').addEventListener('change',updateFixedMode);
+byId('daily').addEventListener('input',function(){
+calculate('daily');
+});
 
+// بقية الحقول
+['decision','settlement','expenses','counting','fixedMode'].forEach(function(id){
+
+byId(id).addEventListener('input',function(){
+calculate();
+});
+
+byId(id).addEventListener('change',function(){
+calculate();
+});
+
+});
+
+// إعادة ضبط الحاسبة
 byId('reset').addEventListener('click',function(){
+
 byId('work').value='';
+byId('daily').value='';
 byId('decision').value='';
 byId('settlement').value='';
-byId('fixedMode').value='manual';
-byId('fixedManual').value='';
+byId('fixedMode').value='';
 byId('expenses').value='';
 byId('counting').value='exclude';
-updateFixedMode();
+
 calculate();
+
 });
 
-updateFixedMode();
+// بدء التشغيل
 calculate();
 
 // PWA install prompt
@@ -253,35 +383,49 @@ var installButton=byId('installApp');
 var installNote=byId('installNote');
 
 window.addEventListener('beforeinstallprompt',function(event){
+
 event.preventDefault();
 installPrompt=event;
 installButton.style.display='block';
 installNote.hidden=true;
+
 });
 
 installButton.addEventListener('click',async function(){
+
 if(!installPrompt)return;
+
 installPrompt.prompt();
+
 await installPrompt.userChoice;
+
 installPrompt=null;
 installButton.style.display='none';
+
 });
 
 window.addEventListener('appinstalled',function(){
+
 installButton.style.display='none';
 installNote.hidden=true;
+
 });
 
 // Offline cache registration
 if('serviceWorker' in navigator){
+
 window.addEventListener('load',function(){
+
 navigator.serviceWorker.register('./sw.js').catch(function(err){
 console.warn('Service worker registration failed:',err);
 });
+
 });
+
 }
 
 })();
 </script>
+
 </body>
 </html>
