@@ -279,9 +279,6 @@ err='من فضلك أدخل تاريخ القرار وتاريخ الاحتسا�
 else if(e<s){
 err='تاريخ الاحتساب لا يمكن أن يسبق تاريخ القرار.';
 }
-else if(!mode){
-err='من فضلك اختر طريقة احتساب الغرامة الثابتة.';
-}
 else if(expensesText!==''&&(!isFinite(expenses)||expenses<0)){
 err='من فضلك راجع قيمة المصاريف.';
 }
@@ -324,7 +321,7 @@ byId('accumulated').textContent=
 validWork&&validDates?money(accum):'—';
 
 byId('fixedout').textContent=
-mode&&validWork?money(fixed):'—';
+validWork?money(fixed):'—';
 
 byId('expensesout').textContent=
 isFinite(expenses)&&expenses>=0?money(expenses):'—';
