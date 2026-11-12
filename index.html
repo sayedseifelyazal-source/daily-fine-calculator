@@ -86,7 +86,7 @@ input[readonly]{background:#edf4f4;font-weight:700}
 <label for="fixedMode">الغرامة الثابتة</label>
 <select id="fixedMode">
 <option value="manual">إدخال يدوي</option>
-<option value="work">قيمة الأعمال</option>
+<option value="double">مثلي قيمة الأعمال</option>
 <option value="triple">ثلاثة أمثال قيمة الأعمال</option>
 </select>
 </div>
@@ -193,8 +193,8 @@ days=dayNo(e)-dayNo(s)+(byId('counting').value==='include'?1:0);
 if(days<0) days=0;
 }
 
-if(mode==='work'){
-fixed=work;
+if(mode==='double'){
+fixed=work*2;
 }
 else if(mode==='triple'){
 fixed=work*3;
